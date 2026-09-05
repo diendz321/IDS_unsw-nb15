@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIDS Real-time Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+</head>
+<body>
+    <!-- Màn hình Đăng nhập/Đăng ký -->
+    <div id="auth-container" class="container" style="display: none;">
+        <h2 id="auth-title">Hệ thống giám sát NIDS</h2>
+        <input type="email" id="email" placeholder="Email (vd: user@nids.com)">
+        <input type="password" id="password" placeholder="Mật khẩu (ít nhất 6 ký tự)">
+
+        <div id="login-actions">
+            <button id="btn-main" onclick="handleAuth()">Đăng nhập</button>
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="javascript:void(0)" id="auth-toggle" onclick="toggleAuthMode()">Chưa có tài khoản? Đăng ký ngay</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Màn hình Dashboard -->
+    <div id="dashboard" class="container" style="display:none;">
+        <div class="header">
+            <h2>Bảng điều khiển lưu lượng mạng</h2>
+            <div class="header-actions">
+                <!-- THÊM 2 Ô LỌC IP Ở ĐÂY -->
+                <input type="text" id="filter-src" class="filter-input" placeholder="Lọc IP Nguồn...">
+                <input type="text" id="filter-dst" class="filter-input" placeholder="Lọc IP Đích...">
+                
+                <button onclick="clearData()" class="btn-clear">Xóa dữ liệu</button>
+                <button onclick="logout()" class="btn-logout">Đăng xuất</button>
+            </div>
+        </div>
+
+        <!-- Bảng được bao bọc trong div để có khả năng scroll ngang dọc mượt mà -->
+        <div class="table-container">
+            <table id="data-table">
+                <thead>
+                    <tr id="header-row">
+                        <!-- Header được tạo tự động bởi JS -->
+                    </tr>
+                </thead>
+                <tbody id="data-body">
+                    <!-- Dữ liệu từ Pi 4 được tối ưu đẩy vào đây qua Fragment RAM -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Gắn file JS cuối cùng để đảm bảo HTML đã tải xong -->
+    <script src="app.js"></script>
+</body>
+</html>
