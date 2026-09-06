@@ -76,9 +76,13 @@ def process_pipeline(argus_input, output_csv):
     merged_df = fix_alignment(df_conn, df_argus)
     if merged_df.empty:
         return
-        
-    merged_df = merged_df.sort_values('StartTime').reset_index(drop=True)
-    
+
+    merged_df['stime'] = pd.to_numeric(merged_df['StartTime'], errors='coerce').fillna(0)
+    merged_df['ltime'] = pd.to_numeric(merged_df['LastTime'], errors='coerce').fillna(0)
+    merged_df['dur'] = pd.to_numeric(merged_df['Dur'].replace('-', 0), errors='coerce').fillna(0)
+
+    merged_df = merged_df.sort_values('ltime').reset_index(drop=True)
+
     if 'uid' in merged_df.columns:
         merged_df['uid'] = merged_df['uid'].fillna('-')
     if 'service' in merged_df.columns:
@@ -91,7 +95,9 @@ def process_pipeline(argus_input, output_csv):
     final_df['dstip'] = merged_df['id.resp_h']
     final_df['sport'] = merged_df['id.orig_p']
     final_df['dsport'] = merged_df['id.resp_p']
-    final_df['dur'] = pd.to_numeric(merged_df['Dur'].replace('-', 0), errors='coerce').fillna(0)
+    final_df['dur'] = merged_df['dur']
+    final_df['stime'] = merged_df['stime']
+    final_df['ltime'] = merged_df['ltime']
     final_df['proto'] = merged_df['proto']
     final_df['service'] = merged_df['service'].astype(str).replace('none', '-')
     
@@ -100,9 +106,6 @@ def process_pipeline(argus_input, output_csv):
     final_df['spkts'] = pd.to_numeric(merged_df['SrcPkts'].replace('-', 0), errors='coerce').fillna(0)
     final_df['dpkts'] = pd.to_numeric(merged_df['DstPkts'].replace('-', 0), errors='coerce').fillna(0)
     final_df['rate'] = np.where(final_df['dur'] > 0, (final_df['spkts'] + final_df['dpkts']) / final_df['dur'], 0)
-    
-    final_df['stime'] = pd.to_numeric(merged_df['StartTime'], errors='coerce').fillna(0)
-    final_df['ltime'] = final_df['stime'] + final_df['dur']
         
     feature_map = {
         'state': 'State', 'sttl': 'sTtl', 'dttl': 'dTtl', 'sload': 'SrcLoad', 

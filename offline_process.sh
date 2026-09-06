@@ -46,7 +46,7 @@ echo "[$(date +%T)] Status: Processing $INPUT_PCAP with Argus and Zeek..."
 
 # Run Argus to extract Flow Metrics
 argus -r input.pcap -w live.argus
-ra -r live.argus -n -u -c , -s stime dur saddr daddr proto sport dport state pkts spkts dpkts bytes sbytes dbytes sttl dttl sload dload sloss dloss sjit djit swin dwin stcpb dtcpb tcprtt synack ackdat sintpkt dintpkt > argus_raw.csv
+ra -r live.argus -n -u -c , -s stime ltime dur saddr daddr proto sport dport state pkts spkts dpkts bytes sbytes dbytes sttl dttl sload dload sloss dloss sjit djit swin dwin stcpb dtcpb tcprtt synack ackdat sintpkt dintpkt > argus_raw.csv
 
 # Run Zeek to extract Protocol Logs
 $ZEEK_BIN -C -r input.pcap > /dev/null 2>&1

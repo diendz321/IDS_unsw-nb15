@@ -51,7 +51,7 @@ while true; do
 
         # Run Argus for Flow Metrics
         argus -r live.pcap -w live.argus
-        ra -r live.argus -n -u -c , -s stime dur saddr daddr proto sport dport state pkts spkts dpkts bytes sbytes dbytes sttl dttl sload dload sloss dloss sjit djit swin dwin stcpb dtcpb tcprtt synack ackdat sintpkt dintpkt > argus_raw.csv
+        ra -r live.argus -n -u -c , -s stime ltime dur saddr daddr proto sport dport state pkts spkts dpkts bytes sbytes dbytes sttl dttl sload dload sloss dloss sjit djit swin dwin stcpb dtcpb tcprtt synack ackdat sintpkt dintpkt > argus_raw.csv
         
         # Run Zeek for Protocol Logs (Bare mode config if applicable)
         $ZEEK_BIN -C -r live.pcap > /dev/null 2>&1
