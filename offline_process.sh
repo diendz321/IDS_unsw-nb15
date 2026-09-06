@@ -22,7 +22,7 @@ BASE_DIR=$(pwd)
 ZEEK_BIN="/opt/zeek/bin/zeek"
 ZEEK_CUT="/opt/zeek/bin/zeek-cut"
 TEMP_DIR="$BASE_DIR/temp"
-VENV_PYTHON="$BASE_DIR/IDS/env/bin/python3"
+VENV_PYTHON="$BASE_DIR/env/bin/python3"
 OUTPUT_CSV="$BASE_DIR/unsw_input.csv" 
 
 # Initialize temporary directory
