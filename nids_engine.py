@@ -27,6 +27,30 @@ RAW_COLS = [
     'ct_src_dport_ltm', 'ct_dst_sport_ltm', 'ct_dst_src_ltm', 'rate'
 ]
 
+# ================= WARM-UP (LATENCY SHIFTING) =================
+print("Warming up model to prevent cold start delay (may take 30-50s)...")
+
+# Initialize dummy data: default to 0 for all columns
+dummy_data = {col: [0] for col in RAW_COLS}
+
+# Assign valid string values for categorical feature columns
+dummy_data['proto'] = ['tcp']
+dummy_data['state'] = ['FIN']
+dummy_data['service'] = ['-']
+
+# Create a DataFrame from the dictionary
+dummy_df = pd.DataFrame(dummy_data)
+
+# Preprocess and force graph compilation
+dummy_processed = preprocessor.transform(dummy_df)
+_ = model.predict_on_batch(dummy_processed)
+
+dummy_processed_2_rows = np.vstack([dummy_processed, dummy_processed])
+_ = model.predict_on_batch(dummy_processed_2_rows)
+
+print("Warm-up complete! System is ready for real-time traffic.")
+# ====================================================================
+
 # ================= HELPER FUNCTIONS =================
 def _send_alert_worker(details):
     """Internal worker for SMTP to prevent main loop blocking."""
@@ -85,9 +109,8 @@ def predict_flow(csv_path):
         
         # 1. Preprocessing
         X_processed = preprocessor.transform(df[RAW_COLS])
-
         # 2. Prediction 
-        probs = model.predict(X_processed, verbose=0)
+        probs = model.predict_on_batch(X_processed)
         if probs.shape[1] > 1:
             is_attack = np.argmax(probs, axis=1) == 1 
         else:
