@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 import tensorflow as tf 
 import requests
 import threading 
+import psutil # System resource measurement library
 
 # ================= SYSTEM CONFIGURATION =================
 SMTP_SERVER, SMTP_PORT = "smtp.gmail.com", 587
@@ -109,8 +110,14 @@ def predict_flow(csv_path):
         
         # 1. Preprocessing
         X_processed = preprocessor.transform(df[RAW_COLS])
-        # 2. Prediction 
+        
+        # 2. Prediction & Inference time measurement
+        num_samples = len(X_processed)
+        
+        inference_start = time.time() # Start timer
         probs = model.predict_on_batch(X_processed)
+        inference_end = time.time()   # End timer
+        
         if probs.shape[1] > 1:
             is_attack = np.argmax(probs, axis=1) == 1 
         else:
@@ -123,6 +130,28 @@ def predict_flow(csv_path):
         debug_df = df[RAW_COLS].head(5).assign(Result=display_labels[:5])
         print(debug_df[['proto', 'state', 'sbytes', 'Result']].to_string(index=False))
         print("="*80)
+        
+        # --- SYSTEM RESOURCE & PERFORMANCE METRICS ---
+        pid = os.getpid()
+        py_process = psutil.Process(pid)
+        
+        # Measure RAM (convert from Bytes to MB)
+        ram_mb = py_process.memory_info().rss / (1024 * 1024)
+        
+        # Measure CPU (process usage %)
+        cpu_percent = py_process.cpu_percent(interval=None) 
+        
+        # Calculate average inference time
+        total_inference_time = inference_end - inference_start
+        avg_inference_time_ms = (total_inference_time / num_samples) * 1000 if num_samples > 0 else 0
+        
+        print(f"📊 RESOURCES & PERFORMANCE:")
+        print(f"   - RAM Usage: {ram_mb:.2f} MB")
+        print(f"   - CPU Usage: {cpu_percent}%")
+        print(f"   - Processed Samples: {num_samples} samples")
+        print(f"   - Avg. Inference Time/Sample: {avg_inference_time_ms:.4f} ms")
+        print("="*80 + "\n")
+        # ----------------------------------------------
 
         # 3. Cloud Sync
         send_batch_to_firebase(df, is_attack)

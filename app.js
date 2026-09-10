@@ -68,9 +68,10 @@ function showDashboard() {
     loadData();
 }
 
-// ================= CƠ CHẾ LỌC IP (CHỐNG LAG) =================
+// ================= CƠ CHẾ LỌC VÀ TÌM KIẾM =================
 let filterSrcValue = '';
 let filterDstValue = '';
+let filterLabelValue = ''; // Thêm biến lưu giá trị lọc nhãn
 
 // Kỹ thuật Debounce: Chờ user ngừng gõ 300ms mới bắt đầu lọc để chống lag CPU
 function debounce(func, wait) {
@@ -81,17 +82,26 @@ function debounce(func, wait) {
     };
 }
 
-// Hàm kiểm tra xem 1 row có khớp bộ lọc không
-function isRowMatchFilters(src, dst) {
+// Cập nhật hàm nhận thêm tham số label
+function isRowMatchFilters(src, dst, label) {
     const s = src ? String(src).toLowerCase() : '';
     const d = dst ? String(dst).toLowerCase() : '';
-    return s.includes(filterSrcValue) && d.includes(filterDstValue);
+    const l = label ? String(label).toLowerCase() : 'normal';
+
+    const matchSrc = s.includes(filterSrcValue);
+    const matchDst = d.includes(filterDstValue);
+    
+    // Nếu filterLabelValue rỗng ("Tất cả") thì luôn trả về true, ngược lại thì phải khớp chính xác
+    const matchLabel = filterLabelValue === '' || l === filterLabelValue;
+
+    return matchSrc && matchDst && matchLabel;
 }
 
 // Lắng nghe sự kiện gõ phím vào ô lọc
 const applyFilters = debounce(() => {
     filterSrcValue = document.getElementById('filter-src').value.toLowerCase().trim();
     filterDstValue = document.getElementById('filter-dst').value.toLowerCase().trim();
+    filterLabelValue = document.getElementById('filter-label').value.toLowerCase().trim(); // Lấy giá trị nhãn
 
     // Dùng requestAnimationFrame để duyệt update DOM mượt mà
     requestAnimationFrame(() => {
@@ -99,8 +109,10 @@ const applyFilters = debounce(() => {
         rows.forEach(row => {
             const src = row.getAttribute('data-srcip');
             const dst = row.getAttribute('data-dstip');
+            const label = row.getAttribute('data-label'); // Lấy nhãn từ Data Attribute
             
-            if (isRowMatchFilters(src, dst)) {
+            // Truyền cả 3 tham số vào để kiểm tra
+            if (isRowMatchFilters(src, dst, label)) {
                 row.style.display = ''; // Hiện
             } else {
                 row.style.display = 'none'; // Ẩn
@@ -111,6 +123,7 @@ const applyFilters = debounce(() => {
 
 document.getElementById('filter-src').addEventListener('input', applyFilters);
 document.getElementById('filter-dst').addEventListener('input', applyFilters);
+document.getElementById('filter-label').addEventListener('change', applyFilters);
 // =======================================================================
 
 
@@ -141,14 +154,19 @@ function renderBuffer() {
     dataBuffer.forEach(data => {
         const row = document.createElement('tr');
         
-        // Gắn data-attribute để phục vụ cho việc lọc IP nhanh chóng
+        // Gắn data-attribute để phục vụ cho việc lọc nhanh chóng
         const currentSrcIP = data['srcip'] || '';
         const currentDstIP = data['dstip'] || '';
+        
+        // Chuẩn hóa nhãn thành "attack" hoặc "normal"
+        const currentLabel = data['label'] === 'attack' ? 'attack' : 'normal'; 
+        
         row.setAttribute('data-srcip', currentSrcIP);
         row.setAttribute('data-dstip', currentDstIP);
+        row.setAttribute('data-label', currentLabel); // Gắn nhãn vào DOM
 
-        // Nếu data mới đổ về không khớp với IP đang được lọc -> Ẩn ngay từ đầu
-        if (!isRowMatchFilters(currentSrcIP, currentDstIP)) {
+        // Nếu data mới đổ về không khớp với bộ lọc hiện tại -> Ẩn ngay từ đầu
+        if (!isRowMatchFilters(currentSrcIP, currentDstIP, currentLabel)) {
             row.style.display = 'none';
         }
 

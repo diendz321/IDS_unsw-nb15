@@ -35,6 +35,13 @@
                 <input type="text" id="filter-src" class="filter-input" placeholder="Lọc IP Nguồn...">
                 <input type="text" id="filter-dst" class="filter-input" placeholder="Lọc IP Đích...">
                 
+                <!-- THÊM Ô LỌC NHÃN Ở ĐÂY -->
+                <select id="filter-label" class="filter-input">
+                    <option value="">Tất cả (All)</option>
+                    <option value="attack">Tấn công (Attack)</option>
+                    <option value="normal">Bình thường (Normal)</option>
+                </select>
+                
                 <button onclick="clearData()" class="btn-clear">Xóa dữ liệu</button>
                 <button onclick="logout()" class="btn-logout">Đăng xuất</button>
             </div>

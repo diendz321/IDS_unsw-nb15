@@ -105,7 +105,7 @@ button {
 .btn-clear { background: #e67e22; }
 .btn-clear:hover { background: #d35400; }
 
-input { 
+input, select { 
     display: block; 
     width: 100%; 
     margin-bottom: 15px; 
@@ -116,7 +116,7 @@ input {
     outline: none;
     transition: 0.2s;
 }
-input:focus { border-color: #0288d1; box-shadow: 0 0 5px rgba(2, 136, 209, 0.2); }
+input:focus, select:focus { border-color: #0288d1; box-shadow: 0 0 5px rgba(2, 136, 209, 0.2); }
 
 #auth-toggle {
     color: #0288d1;
