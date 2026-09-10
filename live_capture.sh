@@ -18,7 +18,7 @@ LIVE_CSV="$BASE_DIR/unsw_input.csv"
 # Initialization
 mkdir -p "$TEMP_DIR"
 chmod 777 "$TEMP_DIR"
-rm -f "$TEMP_DIR"/* "$LIVE_CSV"
+rm -rf "$TEMP_DIR"/* "$LIVE_CSV"
 
 echo "=========================================================="
 echo "   STARTING REAL-TIME NIDS CAPTURE ON $INTERFACE          "
@@ -34,7 +34,7 @@ while true; do
     echo "[$(date +%T)] Status: Capturing $WINDOW_SIZE seconds of traffic..."
     
     # 1. Packet Capture (Blocks for 15 seconds, prevents DNS resolution overhead with -nn)
-    sudo tcpdump -i $INTERFACE -G $WINDOW_SIZE -W 1 -w "$PCAP_FILE" -q -nn > /dev/null 2>&1
+    tcpdump -i $INTERFACE -G $WINDOW_SIZE -W 1 -w "$PCAP_FILE" -q -nn > /dev/null 2>&1
 
     if [ ! -s "$PCAP_FILE" ]; then
         echo "   -> No traffic captured. Waiting for next cycle..."
