@@ -10,7 +10,8 @@ import threading
 # ================= SYSTEM CONFIGURATION =================
 SMTP_SERVER, SMTP_PORT = "smtp.gmail.com", 587
 SENDER, PASSWORD, RECEIVER = "nguyenvandien030524@gmail.com", "zxfi kqew qhwy viny", "diendls321@gmail.com"
-FIREBASE_URL = "https://nids-monitor-default-rtdb.asia-southeast1.firebasedatabase.app/logs.json"
+FIREBASE_SECRET = "c9HchhiaZ0swLVkIPVoTicn5ZuP7h5iQei57A0hY"
+FIREBASE_URL = f"https://nids-monitor-default-rtdb.asia-southeast1.firebasedatabase.app/logs.json?auth={FIREBASE_SECRET}"
 
 # ================= LOAD AI MODEL =================
 print("Loading Model components into RAM...")
